@@ -1,0 +1,684 @@
+/*
+ * Estilos para o cardápio da Dolce DC Café.
+ * O layout procura refletir as cores e a identidade visual fornecidas no PDF,
+ * utilizando bordas laranja, fundo escuro e fontes específicas. O arquivo
+ * inclui animações de entrada (fade‑in) para cada item do cardápio e
+ * utiliza a fonte personalizada "Dolato de Stato" para títulos.
+ */
+
+@font-face {
+  font-family: "Dolato";
+  src: url("fonts/Dolato de Stato Font.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Variáveis CSS para cores principais. A cor laranja foi extraída
+ * aproximando o tom do cardápio original e a cor de fundo utiliza o
+ * valor CMYK fornecido convertido para RGB (vermelho #392502). */
+:root {
+  --background-color: #392502;
+  --orange: #f28c0d;
+  --orange-dark: #d97b00;
+  --text-color: #392502;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Calibri", Arial, sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+/*
+ * Envoltório que circunda o cabeçalho e o cardápio.
+ * Reproduz a moldura laranja do PDF com cantos arredondados e aplica
+ * o fundo escuro no interior.
+ */
+.menu-wrapper {
+  position: relative;
+  border: 5px solid var(--orange);
+  border-radius: 16px;
+  padding: 30px 25px 40px;
+  background-color: var(--background-color);
+  margin-bottom: 40px;
+  /* Efeito flutuante para o contêiner principal */
+  /* Efeito flutuante aumentado para destacar todo o conteúdo */
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+}
+
+/* Ajustes no cabeçalho dentro do envoltório */
+.menu-wrapper header {
+  text-align: center;
+  margin-bottom: 30px;
+  position: relative;
+}
+
+/* Linha com setas e título do cardápio */
+.title-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+/* Imagem do título "Cardápio". Filtrada para a cor laranja */
+.cardapio-img {
+  height: 60px;
+  width: auto;
+  filter: invert(45%) sepia(80%) saturate(600%) hue-rotate(-15deg) brightness(95%) contrast(90%);
+}
+
+/* Setas esquerda e direita que acompanham o título */
+/* As setas laterais devem se adaptar à largura disponível.
+   Elas ocupam espaço flexível na linha e mantêm a proporção via object-fit. */
+.arrow-left,
+.arrow-right {
+  flex: 1;
+  /* As setas são esticadas horizontalmente para preencher o espaço,
+     mantendo uma altura sutil. */
+  height: 24px;
+  width: 100%;
+  object-fit: fill;
+  max-width: 100%;
+}
+
+/* Título principal do cardápio (script) */
+.menu-title {
+  font-family: "Dolato", "Calibri", sans-serif;
+  font-size: 2.5rem;
+  color: #fff;
+  margin: 0;
+  margin-bottom: 10px;
+}
+
+/* Linha superior com a logo central e ícone decorativo à direita */
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+/* Esquerda e direita podem abrigar futuras decorações */
+.header-left,
+.header-right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Centraliza a logo */
+.header-center {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Remove margem inferior padrão do cabeçalho global */
+header {
+  margin-bottom: 0;
+}
+
+/* Ajuste de cores para o ícone decorativo (laranja) */
+.decor-icon {
+  width: 120px;
+  height: auto;
+  filter: invert(45%) sepia(80%) saturate(600%) hue-rotate(-15deg) brightness(95%) contrast(90%);
+}
+
+/* Redefinição do contêiner de menu: agora comporta seções verticais e permite
+ * múltiplas "páginas" do cardápio. */
+/* Contêiner principal do cardápio – separa o conteúdo em duas colunas (esquerda e direita).
+ * As colunas se ajustam à largura disponível, empilhando‑se em telas menores. */
+.menu {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+/* Coluna do cardápio: uma metade da página. */
+.menu-col {
+  flex: 1;
+  min-width: 280px;
+  padding: 0 20px;
+}
+
+/* Linha vertical laranja entre as colunas */
+.menu-col:not(:first-child) {
+  border-left: 2px solid var(--orange);
+}
+
+/* Bloco de cada categoria dentro de uma coluna */
+.category-block {
+  margin-bottom: 40px;
+  /* Animação de entrada */
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+/* Cabeçalho da categoria dentro de cada bloco */
+.category-block h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: "Dolato", "Calibri", sans-serif;
+  font-size: 1.4rem;
+  margin-top: 0;
+  margin-bottom: 12px;
+  color: #fff;
+}
+
+/* Ícone da categoria dentro de cada bloco */
+.category-block .category-icon {
+  width: 32px;
+  height: auto;
+  filter: invert(45%) sepia(80%) saturate(600%) hue-rotate(-15deg) brightness(95%) contrast(90%);
+}
+
+/* Lista de itens dentro de cada bloco */
+.category-block .category-items {
+  margin-top: 0;
+}
+
+/* Linha de item (nome, preço e quantidade) */
+.category-block .menu-row {
+  display: grid;
+  grid-template-columns: 2fr auto 60px;
+  align-items: center;
+  /* Espaçamento adicional entre as colunas para afastar o campo de quantidade do preço */
+  column-gap: 16px;
+  padding: 5px 0;
+  border-bottom: 1px dotted var(--orange);
+  color: #fff;
+}
+
+.category-block .menu-row:last-child {
+  border-bottom: none;
+}
+
+.category-block .menu-row span {
+  font-size: 0.95rem;
+  color: #fff;
+}
+
+.category-block .menu-row input[type="number"] {
+  width: 55px;
+  padding: 4px;
+  font-size: 0.9rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Atrasos incrementais para cada bloco de categoria para o efeito fade-in */
+.category-block:nth-of-type(1) { animation-delay: 0s; }
+.category-block:nth-of-type(2) { animation-delay: 0.1s; }
+.category-block:nth-of-type(3) { animation-delay: 0.2s; }
+.category-block:nth-of-type(4) { animation-delay: 0.3s; }
+.category-block:nth-of-type(5) { animation-delay: 0.4s; }
+.category-block:nth-of-type(6) { animation-delay: 0.5s; }
+
+/* Keyframes para o efeito de fade in vertical */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Cada seção representa um grupo de colunas (por exemplo, página 1 ou 2 do PDF) */
+/* Cada seção usa grid para alinhar as colunas responsivamente. Os itens se
+ * ajustam automaticamente em linhas conforme a largura disponível. */
+.menu-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  /* separador de topo para as seções subsequentes */
+  border-top: 2px solid var(--orange);
+  column-gap: 0;
+}
+
+/* Adiciona espaçamento entre seções do cardápio, exceto a primeira */
+.menu-section:not(:first-child) {
+  margin-top: 30px;
+}
+
+/* Coluna de categoria. Cresce de forma flexível conforme o espaço disponível. */
+.category-column {
+  flex: 1;
+  min-width: 240px;
+  padding: 20px 15px;
+  /* Permite que as colunas separem-se por uma linha laranja */
+}
+
+/* Divisor vertical entre colunas, exceto na primeira */
+.category-column:not(:first-child) {
+  border-left: 2px solid var(--orange);
+}
+
+/* Título da categoria dentro da coluna: fonte decorativa e laranja */
+.category-column h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: "Dolato", "Calibri", sans-serif;
+  font-size: 1.4rem;
+  margin-top: 0;
+  margin-bottom: 12px;
+  color: #fff;
+}
+
+/* Ícone ao lado do título da categoria */
+.category-column .category-icon {
+  width: 32px;
+  height: auto;
+  filter: invert(45%) sepia(80%) saturate(600%) hue-rotate(-15deg) brightness(95%) contrast(90%);
+}
+
+/* Lista de itens dentro de cada coluna */
+.category-items {
+  margin-top: 0;
+}
+
+/* Linha de item: nome, preço e campo de quantidade */
+.category-column .menu-row {
+  display: grid;
+  grid-template-columns: 2fr auto 60px;
+  align-items: center;
+  /* Espaçamento adicional entre as colunas para afastar o campo de quantidade do preço */
+  column-gap: 16px;
+  padding: 5px 0;
+  border-bottom: 1px dotted var(--orange);
+  color: #fff;
+}
+
+.category-column .menu-row:last-child {
+  border-bottom: none;
+}
+
+.category-column .menu-row span {
+  font-size: 0.95rem;
+  color: #fff;
+}
+
+.category-column .menu-row input[type="number"] {
+  width: 55px;
+  padding: 4px;
+  font-size: 0.9rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Rodapé com informações de contato e horário */
+.footer {
+  text-align: center;
+  color: #fff;
+  font-size: 0.9rem;
+  margin-top: 30px;
+}
+
+/* Link no rodapé */
+.footer a {
+  color: var(--orange);
+  text-decoration: none;
+}
+.footer a:hover {
+  text-decoration: underline;
+}
+
+/* Linha sob o cabeçalho do cardápio */
+.header-separator {
+  border-top: 2px solid var(--orange);
+  margin: 20px 0 10px;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+/* Título principal do cardápio */
+.menu-title {
+  font-family: "Dolato", "Calibri", sans-serif;
+  font-size: 2.5rem;
+  color: #fff;
+  margin: 0;
+  margin-bottom: 10px;
+}
+
+/* Área com três colunas: esquerda vazia, logo centralizado e ícone decorativo à direita */
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.logo {
+  width: 180px;
+  height: auto;
+}
+
+.decor-icon {
+  width: 120px;
+  height: auto;
+  filter: invert(45%) sepia(80%) saturate(600%) hue-rotate(-15deg) brightness(95%) contrast(90%);
+}
+
+/* Grade de itens do cardápio */
+.menu {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+/* Estilo de cada item do cardápio */
+.menu-item {
+  background-color: #fff;
+  border: 2px solid var(--orange);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+  text-align: center;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+/* Cartão de categoria – envolve o título da categoria e a lista de itens */
+.category-card {
+  background-color: #fff;
+  border: 2px solid var(--orange);
+  border-radius: 8px;
+  padding: 20px 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+/* Título da categoria */
+.category-card h3 {
+  font-family: "Dolato", "Calibri", sans-serif;
+  font-size: 1.5rem;
+  margin: 0 0 10px;
+  color: var(--text-color);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Ícone da categoria ao lado do título */
+.category-icon {
+  width: 30px;
+  height: auto;
+  filter: invert(45%) sepia(80%) saturate(600%) hue-rotate(-15deg) brightness(95%) contrast(90%);
+}
+
+/* Lista de itens dentro da categoria */
+.category-items {
+  margin-top: 10px;
+}
+
+/* Linha de item: nome, preço e quantidade */
+.menu-row {
+  display: grid;
+  grid-template-columns: 2fr auto 80px;
+  align-items: center;
+  padding: 5px 0;
+  border-bottom: 1px dotted #ddd;
+}
+
+.menu-row:last-child {
+  border-bottom: none;
+}
+
+.menu-row span {
+  font-size: 0.95rem;
+  color: var(--text-color);
+}
+
+.menu-row input[type="number"] {
+  width: 60px;
+  padding: 4px;
+  font-size: 0.9rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.menu-item img {
+  width: 80px;
+  height: auto;
+  margin-bottom: 10px;
+  /* Aplica coloração laranja às imagens brancas dos ícones.
+   * O filtro invert() inverte as cores e a sequência seguinte ajusta
+   * a tonalidade para se aproximar do laranja usado no PDF. */
+  filter: invert(45%) sepia(80%) saturate(600%) hue-rotate(-15deg) brightness(95%) contrast(90%);
+}
+
+.menu-item h3 {
+  font-family: "Dolato", "Calibri", sans-serif;
+  font-size: 1.2rem;
+  margin: 10px 0;
+  color: var(--text-color);
+}
+
+.menu-item label {
+  display: block;
+  font-size: 0.9rem;
+  margin-top: 8px;
+}
+
+.menu-item input[type="number"] {
+  width: 70px;
+  padding: 5px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-top: 5px;
+}
+
+/* Animações de entrada com atraso incremental para cada item */
+.menu-item:nth-child(1) {
+  animation-delay: 0s;
+}
+.menu-item:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.menu-item:nth-child(3) {
+  animation-delay: 0.2s;
+}
+.menu-item:nth-child(4) {
+  animation-delay: 0.3s;
+}
+.menu-item:nth-child(5) {
+  animation-delay: 0.4s;
+}
+.menu-item:nth-child(6) {
+  animation-delay: 0.5s;
+}
+.menu-item:nth-child(7) {
+  animation-delay: 0.6s;
+}
+.menu-item:nth-child(8) {
+  animation-delay: 0.7s;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Estilo da seção do formulário de pedido */
+.order-form {
+  margin-top: 40px;
+  background-color: #fdf7f0; /* tom mais suave para reduzir contraste */
+  border: 2px solid var(--orange);
+  border-radius: 8px;
+  padding: 20px;
+  /* Largura reduzida para deixar o formulário mais sutil */
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+  /* Efeito flutuante */
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
+}
+
+.order-form h2 {
+  font-family: "Dolato", "Calibri", sans-serif;
+  margin-top: 0;
+  color: var(--text-color);
+  font-size: 1.3rem;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+/* =====================================================================
+ *  Estilos para imagens e contêineres decorativos inseridos entre as
+ *  categorias. Estas imagens seguem a paleta laranja do cardápio e
+ *  ajudam a reproduzir a estética do PDF com ilustrações de comidas.
+ *  ===================================================================== */
+
+/* Ajusta o tamanho e a cor dos desenhos decorativos */
+.decor-image {
+  width: 80px;
+  height: auto;
+  margin: 5px;
+  display: block;
+  /* Aplica coloração laranja aos desenhos brancos */
+  filter: invert(45%) sepia(80%) saturate(600%) hue-rotate(-15deg) brightness(95%) contrast(90%);
+}
+
+/* Contêiner para imagens decorativas posicionadas entre categorias
+   (usado no meio da coluna direita). */
+.decor-middle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 20px 0;
+}
+
+/* Contêiner para imagem decorativa no rodapé da coluna
+   (usado nos cantos inferior esquerdo e direito). */
+.decor-bottom {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+/* Permite que imagens de rodapé sejam um pouco maiores */
+.decor-bottom .decor-image {
+  width: 100px;
+}
+
+/* Imagem de topo que combina setas, título, logo e ícones.
+   A imagem ocupa toda a largura disponível e mantém a proporção. */
+.topo-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0 auto 20px;
+}
+
+/* ------------------------------------------------------------------
+ *  Estilos Responsivos
+ *  Ajustes para telas menores, como smartphones, garantindo que o
+ *  cardápio fique legível e não seja necessário rolar horizontalmente.
+ */
+@media (max-width: 900px) {
+  /* Para telas menores (smartphones e tablets), o cardápio passa a ser empilhado */
+  .menu {
+    flex-direction: column;
+  }
+  /* Cada coluna ocupa toda a largura e a linha divisória horizontal separa as categorias */
+  .menu-col {
+    min-width: 100%;
+    padding: 0 12px;
+    border-left: none;
+    border-top: 2px solid var(--orange);
+    margin-top: 20px;
+    box-sizing: border-box;
+  }
+  .menu-col:first-child {
+    border-top: none;
+    margin-top: 0;
+  }
+  /* Reduz as fontes das categorias para melhor encaixe em telas pequenas */
+  .category-block h3 {
+    font-size: 1.2rem;
+  }
+  /* Ajusta a grade das linhas de itens para permitir respiro entre os elementos */
+  .category-block .menu-row,
+  .category-column .menu-row {
+    grid-template-columns: 2fr 1fr 55px;
+    column-gap: 14px;
+  }
+  /* Reduz margens e preenchimentos gerais para economizar espaço */
+  .container {
+    padding: 10px;
+  }
+  .menu-wrapper {
+    padding: 20px 15px;
+  }
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+button[type="submit"] {
+  display: block;
+  width: 100%;
+  background-color: var(--orange);
+  color: #fff;
+  border: none;
+  padding: 12px 20px;
+  font-size: 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 15px;
+}
+
+button[type="submit"]:hover {
+  background-color: var(--orange-dark);
+}
