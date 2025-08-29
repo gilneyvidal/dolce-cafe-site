@@ -1,705 +1,401 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cardápio Dolce DC Café</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    @font-face {
-      font-family: "Dolato";
-      src: url("https://res.cloudinary.com/dts-11-20-2023/image/upload/v1724967393/Dolato_de_Stato_Font_w9r96c.ttf") format("truetype");
-      font-weight: normal;
-      font-style: normal;
-    }
-
-    :root {
-      --background-color: #392502;
-      --orange: #f28c0d;
-      --orange-dark: #d97b00;
-      --text-color: #392502;
-    }
-
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: "Calibri", Arial, sans-serif;
-      background-color: var(--background-color);
-      color: var(--text-color);
-    }
-    
-    .menu-wrapper {
-      position: relative;
-      border: 5px solid var(--orange);
-      border-radius: 16px;
-      padding: 30px 25px 40px;
-      background-color: var(--background-color);
-      margin-bottom: 40px;
-      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
-    }
-
-    .topo-img {
-      display: block;
-      width: 100%;
-      height: auto;
-      margin: 0 auto 20px;
-    }
-    .header-separator {
-      border-top: 2px solid var(--orange);
-      margin: 20px 0 10px;
-    }
-    .info-message {
-      background-color: #fdf7f0;
-      border-left: 4px solid var(--orange);
-      padding: 12px 16px;
-      margin-bottom: 20px;
-      color: var(--text-color);
-      font-size: 0.9rem;
-      line-height: 1.4;
-    }
-    .menu {
-      display: flex;
-      flex-wrap: wrap;
-    }
-    .menu-col {
-      flex: 1;
-      min-width: 280px;
-      padding: 0 20px;
-    }
-    .menu-col:not(:first-child) {
-      border-left: 2px solid var(--orange);
-    }
-    .category-block {
-      margin-bottom: 40px;
-      opacity: 0;
-      transform: translateY(20px);
-      animation: fadeInUp 0.6s ease forwards;
-    }
-    .category-block h3 {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-family: "Dolato", sans-serif;
-      font-size: 1.4rem;
-      font-weight: bold;
-      font-style: italic;
-      margin-top: 0;
-      margin-bottom: 12px;
-      color: #fff;
-    }
-    .category-block .category-icon {
-      width: 32px;
-      height: auto;
-      filter: invert(45%) sepia(80%) saturate(600%) hue-rotate(-15deg) brightness(95%) contrast(90%);
-    }
-    .category-block .category-items {
-      margin-top: 0;
-    }
-    .category-block .menu-row {
-      display: grid;
-      grid-template-columns: 2fr auto 40px auto;
-      align-items: center;
-      column-gap: 16px;
-      padding: 5px 0;
-      border-bottom: 1px dotted var(--orange);
-      color: #fff;
-    }
-    .category-block .menu-row:last-child {
-      border-bottom: none;
-    }
-    .category-block .menu-row span {
-      font-size: 0.95rem;
-      color: #fff;
-    }
-    .category-block .menu-row input[type="number"] {
-      width: 55px;
-      padding: 4px;
-      font-size: 0.9rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    .category-block:nth-of-type(1) { animation-delay: 0s; }
-    .category-block:nth-of-type(2) { animation-delay: 0.1s; }
-    .category-block:nth-of-type(3) { animation-delay: 0.2s; }
-    .category-block:nth-of-type(4) { animation-delay: 0.3s; }
-    .category-block:nth-of-type(5) { animation-delay: 0.4s; }
-    .category-block:nth-of-type(6) { animation-delay: 0.5s; }
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .footer {
-      text-align: center;
-      color: #fff;
-      font-size: 0.9rem;
-      margin-top: 30px;
-    }
-    .footer a {
-      color: var(--orange);
-      text-decoration: none;
-    }
-    .footer a:hover {
-      text-decoration: underline;
-    }
-    .cart-button {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background-color: var(--orange);
-      color: var(--background-color);
-      border: none;
-      border-radius: 24px;
-      padding: 12px 20px;
-      font-size: 0.9rem;
-      cursor: pointer;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-      z-index: 1000;
-      transition: background-color: 0.2s ease;
-    }
-    .cart-button:hover {
-      background-color: var(--orange-dark);
-    }
-    .qty-indicator {
-      font-size: 0.9rem;
-      color: #fff;
-      margin-left: 4px;
-    }
-    .container {
-      max-width: 960px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-    .cart-section {
-      margin-top: 30px;
-      background-color: #fdf7f0;
-      border: 2px solid var(--orange);
-      border-radius: 8px;
-      padding: 20px;
-      max-width: 480px;
-      margin-left: auto;
-      margin-right: auto;
-      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
-      color: var(--text-color);
-    }
-    .cart-section h2 {
-      font-family: "Dolato", sans-serif;
-      font-weight: bold;
-      font-style: italic;
-      margin-top: 0;
-      margin-bottom: 15px;
-      font-size: 1.4rem;
-      text-align: center;
-    }
-    .cart-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      font-size: 0.95rem;
-    }
-    .cart-item-name {
-      flex: 2;
-    }
-    .cart-item-price {
-      flex: 1;
-      text-align: right;
-    }
-    .cart-item-controls {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 5px;
-    }
-    .cart-item-controls button {
-      width: 28px;
-      height: 28px;
-      border: 1px solid var(--orange);
-      background-color: var(--orange);
-      color: #fff;
-      font-weight: bold;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .cart-total {
-      font-weight: bold;
-      text-align: right;
-      margin-top: 10px;
-    }
-    .add-btn {
-      width: 32px;
-      height: 28px;
-      border: 1px solid var(--orange);
-      background-color: var(--orange);
-      color: #fff;
-      font-size: 1rem;
-      border-radius: 4px;
-      cursor: pointer;
-      text-align: center;
-      padding: 0;
-    }
-    .add-btn:hover {
-      background-color: var(--orange-dark);
-    }
-    .form-group {
-      margin-bottom: 15px;
-    }
-    .form-group label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
-      color: #fff;
-    }
-    .form-group input,
-    .form-group select {
-      width: 100%;
-      padding: 8px;
-      box-sizing: border-box;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      font-size: 1rem;
-      color: #000;
-    }
-    button[type="submit"] {
-      display: block;
-      width: 100%;
-      background-color: var(--orange);
-      color: #fff;
-      border: none;
-      padding: 12px 20px;
-      font-size: 1rem;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      margin-top: 15px;
-    }
-    button[type="submit"]:hover {
-      background-color: var(--orange-dark);
-    }
-    @media (max-width: 900px) {
-      .menu {
-        flex-direction: column;
-      }
-      .menu-col {
-        min-width: 100%;
-        padding: 0 12px;
-        border-left: none;
-        border-top: 2px solid var(--orange);
-        margin-top: 20px;
-        box-sizing: border-box;
-      }
-      .menu-col:first-child {
-        border-top: none;
-        margin-top: 0;
-      }
-      .category-block h3 {
-        font-size: 1.2rem;
-      }
-      .category-block .menu-row,
-      .category-column .menu-row {
-        grid-template-columns: 2fr auto 40px auto;
-        column-gap: 14px;
-      }
-      .container {
-        padding: 10px;
-      }
-      .menu-wrapper {
-        padding: 20px 15px;
-      }
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="menu-wrapper">
-      <header>
-        <img src="https://res.cloudinary.com/dts-11-20-2023/image/upload/v1724967393/topo.png" alt="Topo decorativo" class="topo-img" />
-      </header>
-      <div class="header-separator"></div>
-      <div class="info-message">
-        Clique no botão <strong>“+”</strong> para adicionar um produto à sua sacola. Os itens adicionados ficam no <strong>carrinho</strong> ao final da página, junto ao formulário de pedido. Você pode ajustar as quantidades e finalizar seu pedido lá mesmo.
-      </div>
-      <section id="menu" class="menu">
-        <div class="loading-message text-white">Carregando cardápio...</div>
-      </section>
+<!-- Modal de mensagem -->
+<div id="message-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3 text-center">
+            <h3 id="modal-title" class="text-lg leading-6 font-medium text-gray-900"></h3>
+            <div class="mt-2 px-7 py-3">
+                <p id="modal-message" class="text-sm text-gray-500"></p>
+            </div>
+            <div class="items-center px-4 py-3">
+                <button id="close-modal-btn" class="px-4 py-2 bg-[#f28c0d] text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-[#d97b00] focus:outline-none focus:ring-2 focus:ring-[#f28c0d] focus:ring-opacity-50">
+                    Ok
+                </button>
+            </div>
+        </div>
     </div>
-    <section id="cart-section" class="cart-section" style="display:none;">
-      <h2>Carrinho</h2>
-      <div id="cartItems"></div>
-      <p class="cart-total">Total: R$ <span id="cartTotal">0,00</span></p>
+</div>
+
+<div class="container mx-auto p-5 max-w-5xl">
+    <!-- Envoltório que concentra o cabeçalho e o cardápio -->
+    <div class="menu-wrapper border-4 border-[#f28c0d] rounded-2xl p-6 md:p-10 bg-[#392502] shadow-xl mb-10">
+        <header class="text-center mb-8 relative">
+            <!-- Recriação do topo decorativo com classes Tailwind e texto -->
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex-1 flex justify-start items-center">
+                    <svg class="h-6 w-12 text-[#f28c0d] transform -scale-x-100" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M11.707 3.293a1 1 0 010 1.414L7.414 9H15a1 1 0 110 2H7.414l4.293 4.293a1 1 0 01-1.414 1.414l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 0z" clip-rule="evenodd" fill-rule="evenodd"></path>
+                    </svg>
+                </div>
+                <h1 class="text-3xl sm:text-4xl lg:text-5xl text-white dolato-font leading-none">Dolce DC Café</h1>
+                <div class="flex-1 flex justify-end items-center">
+                    <svg class="h-6 w-12 text-[#f28c0d]" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M11.707 3.293a1 1 0 010 1.414L7.414 9H15a1 1 0 110 2H7.414l4.293 4.293a1 1 0 01-1.414 1.414l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 0z" clip-rule="evenodd" fill-rule="evenodd"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="border-t-2 border-[#f28c0d] mb-4"></div>
+            <p id="user-id-display" class="text-xs text-gray-400">Carregando ID de usuário...</p>
+        </header>
+
+        <!-- Mensagem informativa para usuários iniciantes -->
+        <div class="bg-gray-100 border-l-4 border-[#f28c0d] p-3 md:p-4 mb-5 text-sm text-[#392502] rounded-md">
+            Clique no botão <strong>“+”</strong> para adicionar um produto à sua sacola. Os itens adicionados ficam no <strong>carrinho</strong> ao final da página, junto ao formulário de pedido. Você pode ajustar as quantidades e finalizar seu pedido lá mesmo.
+        </div>
+
+        <!-- Seção dinâmica onde serão inseridas as categorias e itens do cardápio via JavaScript -->
+        <div id="loading-spinner" class="flex flex-col items-center justify-center py-10">
+            <svg class="animate-spin -ml-1 mr-3 h-10 w-10 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span class="mt-4 text-white text-lg">Carregando cardápio...</span>
+        </div>
+        
+        <section id="menu" class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-12">
+            <!-- Conteúdo gerado dinamicamente pelo JavaScript -->
+        </section>
+    </div>
+
+    <!-- Seção do carrinho onde os itens selecionados serão listados -->
+    <section id="cart-section" class="cart-section hidden mt-8 md:mt-10 bg-gray-100 border-2 border-[#f28c0d] rounded-2xl p-6 shadow-xl max-w-xl mx-auto text-[#392502]">
+        <h2 class="dolato-font text-2xl mb-4 text-center">Carrinho</h2>
+        <div id="cartItems" class="flex flex-col gap-4"></div>
+        <p class="cart-total text-right font-bold text-xl mt-4">Total: R$ <span id="cartTotal">0,00</span></p>
     </section>
-    <button id="cartButton" class="cart-button" style="display:none;">
-      Ver carrinho (<span id="cartCount">0</span>)
+
+    <!-- Botão flutuante para acessar o carrinho -->
+    <button id="cartButton" class="fixed bottom-5 right-5 bg-[#f28c0d] text-white font-bold py-3 px-6 rounded-full shadow-lg hover:bg-[#d97b00] transition-colors duration-300 z-50 hidden">
+        Ver carrinho (<span id="cartCount">0</span>)
     </button>
-    <section id="order-form" class="order-form">
-      <h2>Fazer pedido</h2>
-      <form id="orderForm">
-        <div class="form-group">
-          <label for="customerName">Nome:</label>
-          <input type="text" id="customerName" required />
-        </div>
-        <div class="form-group">
-          <label for="customerPhone">Telefone:</label>
-          <input type="tel" id="customerPhone" required />
-        </div>
-        <div class="form-group">
-          <label for="customerRoom">Quarto:</label>
-          <input type="text" id="customerRoom" required />
-        </div>
-        <div class="form-group">
-          <label for="customerSector">Setor:</label>
-          <select id="customerSector" required></select>
-        </div>
-        <div class="form-group">
-          <label for="paymentMethod">Forma de pagamento:</label>
-          <select id="paymentMethod" required>
-            <option value="Dinheiro">Dinheiro</option>
-            <option value="Cartão de Crédito">Cartão de crédito</option>
-            <option value="Cartão de Débito">Cartão de débito</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="consumptionType">Serviço:</label>
-          <select id="consumptionType" required>
-            <option value="Comer no local">Comer no local</option>
-            <option value="Retirar no balcão">Retirar no balcão</option>
-          </select>
-        </div>
-        <button type="submit">Enviar pedido via WhatsApp</button>
-      </form>
+
+    <!-- Seção do formulário de pedido -->
+    <section id="order-form" class="order-form mt-8 md:mt-10 bg-gray-100 border-2 border-[#f28c0d] rounded-2xl p-6 shadow-xl max-w-xl mx-auto text-[#392502]">
+        <h2 class="dolato-font text-2xl mb-4 text-center">Fazer pedido</h2>
+        <form id="orderForm" class="space-y-4">
+            <div>
+                <label for="customerName" class="block font-semibold">Nome:</label>
+                <input type="text" id="customerName" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f28c0d]" required />
+            </div>
+            <div>
+                <label for="customerPhone" class="block font-semibold">Telefone:</label>
+                <input type="tel" id="customerPhone" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f28c0d]" required />
+            </div>
+            <div>
+                <label for="customerRoom" class="block font-semibold">Quarto:</label>
+                <input type="text" id="customerRoom" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f28c0d]" required />
+            </div>
+            <div>
+                <label for="customerSector" class="block font-semibold">Setor:</label>
+                <select id="customerSector" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f28c0d]" required></select>
+            </div>
+            <div>
+                <label for="paymentMethod" class="block font-semibold">Forma de pagamento:</label>
+                <select id="paymentMethod" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f28c0d]" required>
+                    <option value="Dinheiro">Dinheiro</option>
+                    <option value="Cartão de Crédito">Cartão de crédito</option>
+                    <option value="Cartão de Débito">Cartão de débito</option>
+                    <option value="Pix">Pix</option>
+                </select>
+            </div>
+            <div>
+                <label for="consumptionType" class="block font-semibold">Serviço:</label>
+                <select id="consumptionType" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f28c0d]" required>
+                    <option value="Comer no local">Comer no local</option>
+                    <option value="Retirar no balcão">Retirar no balcão</option>
+                </select>
+            </div>
+            <button type="submit" class="w-full bg-[#f28c0d] text-white font-bold py-3 px-4 rounded-lg shadow-md hover:bg-[#d97b00] transition-colors duration-300">
+                Enviar pedido via WhatsApp
+            </button>
+        </form>
     </section>
-    <footer class="footer">
-      <p>Dolce Café | Ramal: 0830 | Horário: 6:00 às 23:00</p>
-      <p>© 2025 Dolce Café. Todos os direitos reservados.</p>
-      <p>
-        Desenvolvido pela empresa Vidal Design Solutions –
-        <a href="https://wa.me/5511968649673" target="_blank">11968649673</a>
-      </p>
+
+    <!-- Rodapé -->
+    <footer class="footer text-center text-gray-300 text-sm mt-10">
+        <p>Dolce Café | Ramal: 0830 | Horário: 6:00 às 23:00</p>
+        <p>© 2025 Dolce Café. Todos os direitos reservados.</p>
+        <p>
+            Desenvolvido pela empresa Vidal Design Solutions –
+            <a href="https://wa.me/5511968649673" target="_blank" class="text-[#f28c0d] hover:underline">11968649673</a>
+        </p>
     </footer>
-  </div>
-  <script type="module">
+</div>
+
+<!-- Scripts do Firebase e do aplicativo -->
+<script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    
-    const firebaseConfig = typeof __firebase_config !== 'undefined'
-      ? JSON.parse(__firebase_config)
-      : { 
-          // Configuração de fallback para desenvolvimento local (não será usada no ambiente final)
-          apiKey: "AIzaSy...",
-          authDomain: "...",
-          projectId: "...",
-          // etc.
-      };
-    // A variável 'appId' ainda é útil para outras funcionalidades do Firebase, mas não para o caminho dos dados.
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id-for-local-dev';
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+    // Global variables provided by the Canvas environment
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+    const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-    let db;
-    let auth;
-    let userId;
-    const cart = {};
-    const qtyIndicators = {};
+    // Firestore paths for data
+    const menuPath = `/artifacts/${appId}/public/data/menu`;
+    const sectorsPath = `/artifacts/${appId}/public/data/sectors`;
+    const userCartPath = (userId) => `/artifacts/${appId}/users/${userId}/cart/items`;
+    const userProfilePath = (userId) => `/artifacts/${appId}/users/${userId}/profile`;
 
-    document.addEventListener('DOMContentLoaded', () => {
-      try {
-        const app = initializeApp(firebaseConfig);
+    // Firebase Initialization
+    let app, db, auth, userId;
+    const loadingSpinner = document.getElementById('loading-spinner');
+    const menuContainer = document.getElementById('menu');
+
+    try {
+        app = initializeApp(firebaseConfig);
         db = getFirestore(app);
         auth = getAuth(app);
+        console.log("Firebase inicializado com sucesso.");
 
-        onAuthStateChanged(auth, (user) => {
-          if (user) {
-            userId = user.uid;
-            console.log("Usuário autenticado:", userId);
-            loadDataWithRealtimeUpdates(); 
-          }
-        });
-        
-        (async () => {
-            try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
+        // Autenticação do usuário e configuração do listener
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                userId = user.uid;
+                document.getElementById('user-id-display').textContent = `ID de usuário: ${userId}`;
+                console.log(`Usuário autenticado com ID: ${userId}`);
+
+                // Listener para o carrinho do usuário
+                onSnapshot(doc(db, userCartPath(userId)), (docSnapshot) => {
+                    const cartData = docSnapshot.data() || {};
+                    updateCart(cartData);
+                }, (error) => {
+                    console.error("Erro ao obter dados do carrinho:", error);
+                });
+            } else {
+                try {
+                    if (initialAuthToken) {
+                        const userCredential = await signInWithCustomToken(auth, initialAuthToken);
+                        userId = userCredential.user.uid;
+                    } else {
+                        const userCredential = await signInAnonymously(auth);
+                        userId = userCredential.user.uid;
+                    }
+                } catch (error) {
+                    console.error("Erro na autenticação:", error);
+                    userId = crypto.randomUUID(); // Fallback para ID aleatório
+                    document.getElementById('user-id-display').textContent = `ID de usuário (anônimo): ${userId}`;
+                    console.warn(`Autenticação falhou, usando ID de usuário aleatório: ${userId}`);
                 }
-            } catch (error) {
-                console.error("Erro no processo de autenticação:", error);
-                document.getElementById('menu').innerHTML = `<div class="text-red-500 font-bold text-center p-4">Erro ao autenticar. Não foi possível carregar o cardápio.</div>`;
             }
-        })();
+        });
 
+        // Carrega dados do Firestore
+        async function loadData() {
+            try {
+                const menuDoc = await getDoc(doc(db, menuPath));
+                const sectorsDoc = await getDoc(doc(db, sectorsPath));
+                
+                const menuData = menuDoc.exists() ? menuDoc.data().categories : [];
+                const sectorsData = sectorsDoc.exists() ? sectorsDoc.data().list : [];
+                
+                renderMenu(menuData);
+                populateSectors(sectorsData);
+                loadingSpinner.classList.add('hidden');
+            } catch (e) {
+                console.error("Erro ao carregar dados do Firestore:", e);
+                loadingSpinner.innerHTML = `<p class="text-white text-lg">Erro ao carregar o cardápio. Verifique sua conexão ou tente novamente mais tarde.</p>`;
+            }
+        }
 
-      } catch (error) {
-        console.error("Erro ao inicializar o Firebase. Verifique a configuração.", error);
-        document.getElementById('menu').innerHTML = '<div class="text-red-500 font-bold text-center p-4">Erro ao carregar o cardápio. Verifique sua configuração do Firebase.</div>';
-      }
+        loadData();
+    } catch (e) {
+        console.error("Erro ao inicializar o Firebase:", e);
+        loadingSpinner.innerHTML = `<p class="text-white text-lg">Erro ao inicializar o Firebase. Verifique a configuração.</p>`;
+    }
 
-      function updateIndicators() {
+    /** Exibe uma mensagem em um modal customizado */
+    function showMessage(title, message) {
+        document.getElementById('modal-title').textContent = title;
+        document.getElementById('modal-message').textContent = message;
+        document.getElementById('message-modal').classList.remove('hidden');
+    }
+
+    document.getElementById('close-modal-btn').addEventListener('click', () => {
+        document.getElementById('message-modal').classList.add('hidden');
+    });
+
+    /** Mapeamento de indicadores de quantidade */
+    const qtyIndicators = {};
+
+    /** Atualiza os indicadores de quantidade e o botão flutuante do carrinho. */
+    function updateIndicators(cart) {
         Object.keys(qtyIndicators).forEach(name => {
-          const span = qtyIndicators[name];
-          if(span) span.textContent = cart[name] ? cart[name].quantity : '';
+            const span = qtyIndicators[name];
+            span.textContent = cart[name] ? cart[name].quantity : '';
         });
         const cartButton = document.getElementById('cartButton');
         const cartCount = document.getElementById('cartCount');
         const totalItems = Object.values(cart).reduce((sum, e) => sum + e.quantity, 0);
         if (totalItems > 0) {
-          cartButton.style.display = 'block';
-          cartCount.textContent = totalItems;
+            cartButton.classList.remove('hidden');
+            cartCount.textContent = totalItems;
         } else {
-          cartButton.style.display = 'none';
-          cartCount.textContent = '0';
+            cartButton.classList.add('hidden');
+            cartCount.textContent = '0';
         }
-      }
+    }
 
-      function addToCart(itemName, itemPrice) {
-        if (!cart[itemName]) cart[itemName] = { quantity: 1, price: itemPrice };
-        else cart[itemName].quantity++;
-        renderCart();
-        updateIndicators();
-      }
+    /** Adiciona item ao carrinho no Firestore */
+    async function addToCart(itemName, itemPrice) {
+        const userCartRef = doc(db, userCartPath(userId));
+        try {
+            const cartDoc = await getDoc(userCartRef);
+            const currentCart = cartDoc.exists() ? cartDoc.data() : {};
+            const newCart = { ...currentCart };
 
-      function updateCart(itemName, delta) {
-        if (!cart[itemName]) return;
-        cart[itemName].quantity += delta;
-        if (cart[itemName].quantity <= 0) delete cart[itemName];
-        renderCart();
-        updateIndicators();
-      }
+            if (!newCart[itemName]) {
+                newCart[itemName] = { quantity: 1, price: itemPrice };
+            } else {
+                newCart[itemName].quantity++;
+            }
 
-      function renderCart() {
+            await setDoc(userCartRef, newCart);
+        } catch (e) {
+            console.error("Erro ao adicionar item ao carrinho:", e);
+        }
+    }
+
+    /** Atualiza quantidade de um item no carrinho no Firestore */
+    async function updateCartItem(itemName, delta) {
+        const userCartRef = doc(db, userCartPath(userId));
+        try {
+            const cartDoc = await getDoc(userCartRef);
+            const currentCart = cartDoc.exists() ? cartDoc.data() : {};
+            const newCart = { ...currentCart };
+
+            if (!newCart[itemName]) return;
+
+            newCart[itemName].quantity += delta;
+            if (newCart[itemName].quantity <= 0) {
+                delete newCart[itemName];
+            }
+
+            await setDoc(userCartRef, newCart);
+        } catch (e) {
+            console.error("Erro ao atualizar item do carrinho:", e);
+        }
+    }
+
+    /** Renderiza o conteúdo do carrinho com dados do Firestore */
+    function updateCart(cart) {
         const cartSection = document.getElementById('cart-section');
         const cartItemsContainer = document.getElementById('cartItems');
         const cartTotalSpan = document.getElementById('cartTotal');
         cartItemsContainer.innerHTML = '';
         let total = 0;
         const names = Object.keys(cart);
+
         if (names.length === 0) {
-          cartSection.style.display = 'none';
-          cartTotalSpan.textContent = '0,00';
-          return;
+            cartSection.classList.add('hidden');
+            cartTotalSpan.textContent = '0,00';
+            updateIndicators(cart);
+            return;
         }
-        cartSection.style.display = 'block';
+
+        cartSection.classList.remove('hidden');
         names.forEach(name => {
-          const entry = cart[name];
-          const priceNum = parseFloat(String(entry.price).replace(',', '.'));
-          const itemTotal = priceNum * entry.quantity;
-          total += itemTotal;
+            const entry = cart[name];
+            const priceNum = parseFloat(entry.price.replace(',', '.'));
+            const itemTotal = priceNum * entry.quantity;
+            total += itemTotal;
 
-          const row = document.createElement('div');
-          row.className = 'cart-item';
+            const row = document.createElement('div');
+            row.className = 'cart-item flex items-center justify-between gap-2 border-b border-gray-300 pb-2';
 
-          const nameSpan = document.createElement('span');
-          nameSpan.className = 'cart-item-name';
-          nameSpan.textContent = name;
-
-          const priceSpan = document.createElement('span');
-          priceSpan.className = 'cart-item-price';
-          priceSpan.textContent = `R$ ${entry.price}`;
-
-          const controls = document.createElement('div');
-          controls.className = 'cart-item-controls';
-          const minusBtn = document.createElement('button');
-          minusBtn.textContent = '−';
-          minusBtn.addEventListener('click', () => updateCart(name, -1));
-          const qtySpan = document.createElement('span');
-          qtySpan.textContent = entry.quantity;
-          qtySpan.style.minWidth = '20px';
-          qtySpan.style.textAlign = 'center';
-          const plusBtn = document.createElement('button');
-          plusBtn.textContent = '+';
-          plusBtn.addEventListener('click', () => updateCart(name, 1));
-
-          controls.appendChild(minusBtn);
-          controls.appendChild(qtySpan);
-          controls.appendChild(plusBtn);
-
-          row.appendChild(nameSpan);
-          row.appendChild(priceSpan);
-          row.appendChild(controls);
-          cartItemsContainer.appendChild(row);
+            row.innerHTML = `
+                <span class="font-semibold">${name}</span>
+                <span class="text-gray-600">R$ ${entry.price}</span>
+                <div class="flex items-center gap-2">
+                    <button class="bg-[#f28c0d] text-white rounded-full w-6 h-6 flex items-center justify-center font-bold text-lg leading-none" onclick="updateCartItem('${name}', -1)">−</button>
+                    <span>${entry.quantity}</span>
+                    <button class="bg-[#f28c0d] text-white rounded-full w-6 h-6 flex items-center justify-center font-bold text-lg leading-none" onclick="updateCartItem('${name}', 1)">+</button>
+                </div>
+            `;
+            cartItemsContainer.appendChild(row);
         });
         const totalStr = total.toFixed(2).replace('.', ',');
         cartTotalSpan.textContent = totalStr;
-      }
+        updateIndicators(cart);
+    }
 
-      function createCategoryBlock(category) {
-        if (!category) return null;
-
-        const block = document.createElement('div');
-        block.className = 'category-block';
-
-        const h3 = document.createElement('h3');
-        const iconImg = document.createElement('img');
-        iconImg.src = category.icon;
-        iconImg.alt = '';
-        iconImg.className = 'category-icon';
-        const titleSpan = document.createElement('span');
-        titleSpan.textContent = category.name;
-        h3.appendChild(iconImg);
-        h3.appendChild(titleSpan);
-        block.appendChild(h3);
-
-        const itemList = document.createElement('div');
-        itemList.className = 'category-items';
-        (category.items || []).forEach(item => {
-          const row = document.createElement('div');
-          row.className = 'menu-row';
-
-          const nameBox = document.createElement('div');
-          const nameSpan = document.createElement('span');
-          nameSpan.textContent = item.name;
-          nameSpan.style.display = 'block';
-
-          nameBox.appendChild(nameSpan);
-
-          if (item.description) {
-            const desc = document.createElement('small');
-            desc.textContent = item.description;
-            desc.style.display = 'block';
-            desc.style.marginTop = '2px';
-            desc.style.opacity = '0.9';
-            desc.style.color = '#ddd';
-            nameBox.appendChild(desc);
-          }
-
-          const priceSpan = document.createElement('span');
-          priceSpan.textContent = `R$ ${item.price}`;
-
-          const addBtn = document.createElement('button');
-          addBtn.type = 'button';
-          addBtn.textContent = '+';
-          addBtn.className = 'add-btn';
-          addBtn.addEventListener('click', () => addToCart(item.name, item.price));
-
-          const qtySpan = document.createElement('span');
-          qtySpan.className = 'qty-indicator';
-          qtyIndicators[item.name] = qtySpan;
-
-          row.appendChild(nameBox);
-          row.appendChild(priceSpan);
-          row.appendChild(addBtn);
-          row.appendChild(qtySpan);
-          itemList.appendChild(row);
-        });
-        block.appendChild(itemList);
-        return block;
-      }
-
-      function renderMenu(menuData) {
-        const menuContainer = document.getElementById('menu');
+    /** Gera dinamicamente as seções do cardápio */
+    function renderMenu(menuData) {
         menuContainer.innerHTML = '';
         Object.keys(qtyIndicators).forEach(key => delete qtyIndicators[key]);
 
-        const leftCategories = ['Salgados', 'Comidinhas', 'Doces'];
-        const rightCategories = ['Cafeteria', 'Bebidas', 'Petit Four', 'Combo Promocional'];
-
-        const leftCol = document.createElement('div');
-        leftCol.className = 'menu-col';
-        leftCategories.forEach(name => {
-          const category = menuData.find(cat => cat.name === name);
-          const block = createCategoryBlock(category);
-          if (block) leftCol.appendChild(block);
-        });
-
-        const rightCol = document.createElement('div');
-        rightCol.className = 'menu-col';
-        rightCategories.forEach(name => {
-          const category = menuData.find(cat => cat.name === name);
-          const block = createCategoryBlock(category);
-          if (block) rightCol.appendChild(block);
-        });
-        menuContainer.appendChild(leftCol);
-        menuContainer.appendChild(rightCol);
-        updateIndicators(); 
-      }
-
-      function renderSectors(sectors) {
-        const sectorSelect = document.getElementById('customerSector');
-        sectorSelect.innerHTML = '';
-        (sectors || []).forEach(sector => {
-          const option = document.createElement('option');
-          option.value = sector;
-          option.textContent = sector;
-          sectorSelect.appendChild(option);
-        });
-      }
-      
-      function loadDataWithRealtimeUpdates() {
-        if (!db) {
-            console.error("Firestore DB não está disponível.");
+        if (!menuData || menuData.length === 0) {
+            menuContainer.innerHTML = `<p class="text-white text-center text-lg col-span-2">Nenhuma categoria encontrada. Por favor, adicione categorias no seu banco de dados do Firestore.</p>`;
             return;
-        };
-        
-        // --- CORREÇÃO FINAL ---
-        // Usar o caminho exato e fixo para os dados, conforme a estrutura do seu banco de dados.
-        const menuRef = doc(db, "artifacts", "dolce-cafe-app", "public", "menu");
-        onSnapshot(menuRef, (doc) => {
-            if (doc.exists()) {
-                const menuData = doc.data().categories;
-                renderMenu(menuData);
-            } else {
-                document.getElementById('menu').innerHTML = '<div class="text-white text-center p-4">Cardápio não encontrado. Verifique a configuração no Firestore.</div>';
-            }
-        }, (error) => {
-            console.error("Erro ao carregar o cardápio em tempo real:", error);
-            document.getElementById('menu').innerHTML = `<div class="text-white text-center p-4">Erro ao carregar o cardápio: ${error.message}</div>`;
-        });
-        
-        const sectorsRef = doc(db, "artifacts", "dolce-cafe-app", "public", "sectors");
-        onSnapshot(sectorsRef, (doc) => {
-            if (doc.exists()) {
-                const sectorsData = doc.data().list;
-                renderSectors(sectorsData);
-            } else {
-                console.warn("Documento de setores não encontrado.");
-            }
-        }, (error) => {
-            console.error("Erro ao carregar os setores em tempo real:", error);
-        });
-      }
-
-
-      function buildWhatsAppURL(number, text) {
-        const encoded = encodeURIComponent(text);
-        const isMobile = /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
-        return isMobile
-          ? `https://wa.me/${number}?text=${encoded}`
-          : `https://web.whatsapp.com/send?phone=${number}&text=${encoded}`;
-      }
-
-      const orderForm = document.getElementById('orderForm');
-      orderForm.addEventListener('submit', event => {
-        event.preventDefault();
-
-        const now = new Date();
-        const hour = now.getHours();
-        
-        if (hour < 6 || hour >= 23) {
-          showModalMessage('Desculpe, a loja está fechada. Nosso horário de atendimento é das 6:00 às 23:00.');
-          return;
         }
 
-        const orderLines = [];
-        let totalOrder = 0;
+        menuData.forEach((category, index) => {
+            const block = document.createElement('div');
+            block.className = `category-block animate-fadeInUp p-4 border-2 border-[#f28c0d] rounded-xl shadow-lg bg-gray-100/90`;
+            block.style.animationDelay = `${index * 0.1}s`;
+
+            const icon = category.icon || '☕'; // Fallback para emoji
+            block.innerHTML = `
+                <h3 class="flex items-center gap-2 text-xl font-bold mb-4 border-b border-[#f28c0d] pb-2">
+                    <span class="text-2xl">${icon}</span>
+                    <span>${category.name}</span>
+                </h3>
+                <div class="category-items space-y-3">
+                    ${category.items.map(item => `
+                        <div class="menu-row flex justify-between items-center gap-4">
+                            <div>
+                                <span class="block font-medium">${item.name}</span>
+                                ${item.description ? `<small class="block text-gray-500 text-sm mt-1">${item.description}</small>` : ''}
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-semibold text-[#f28c0d]">R$ ${item.price}</span>
+                                <button class="add-btn bg-[#f28c0d] text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-xl leading-none" onclick="addToCart('${item.name}', '${item.price}')">+</button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            menuContainer.appendChild(block);
+        });
+    }
+
+    /** Preenche o select de setores */
+    function populateSectors(sectorsData) {
+        const sectorSelect = document.getElementById('customerSector');
+        sectorSelect.innerHTML = sectorsData.map(sector => `<option value="${sector}">${sector}</option>`).join('');
+    }
+    
+    // Manipulador de envio do formulário (gera mensagem e abre WhatsApp)
+    const orderForm = document.getElementById('orderForm');
+    orderForm.addEventListener('submit', async event => {
+        event.preventDefault();
+
+        const userCartRef = doc(db, userCartPath(userId));
+        const cartDoc = await getDoc(userCartRef);
+        const cart = cartDoc.exists() ? cartDoc.data() : {};
         const names = Object.keys(cart);
 
         if (names.length === 0) {
-          showModalMessage('O seu carrinho está vazio. Adicione pelo menos um item para fazer o pedido.');
-          return;
+            showMessage("Aviso", "Selecione pelo menos um item do cardápio para fazer o pedido.");
+            return;
         }
 
+        // Linhas do pedido
+        const orderLines = [];
+        let totalOrder = 0;
         names.forEach(name => {
-          const entry = cart[name];
-          const qty = entry.quantity;
-          const priceStr = entry.price;
-          const priceNum = parseFloat(String(entry.price).replace(',', '.'));
-          const itemTotal = priceNum * qty;
-          totalOrder += itemTotal;
-          const itemTotalStr = itemTotal.toFixed(2).replace('.', ',');
-          orderLines.push(`${name}: ${qty} x R$ ${priceStr} = R$ ${itemTotalStr}`);
+            const entry = cart[name];
+            const qty = entry.quantity;
+            const priceStr = entry.price;
+            const priceNum = parseFloat(priceStr.replace(',', '.'));
+            const itemTotal = priceNum * qty;
+            totalOrder += itemTotal;
+            const itemTotalStr = itemTotal.toFixed(2).replace('.', ',');
+            orderLines.push(`${name}: ${qty} x R$ ${priceStr} = R$ ${itemTotalStr}`);
         });
 
+        // Dados do cliente
         const customerName = document.getElementById('customerName').value.trim();
         const customerPhone = document.getElementById('customerPhone').value.trim();
         const customerRoom = document.getElementById('customerRoom').value.trim();
@@ -707,53 +403,43 @@
         const paymentMethod = document.getElementById('paymentMethod').value;
         const consumptionType = document.getElementById('consumptionType').value;
 
+        // Total do pedido
         const totalStr = totalOrder.toFixed(2).replace('.', ',');
 
-        const message =
-          `Olá, gostaria de fazer um pedido:\n\n` +
-          `*Itens selecionados:*\n${orderLines.join('\n')}\n\n` +
-          `*Total do pedido: R$ ${totalStr}*\n\n` +
-          `----------------------------------\n`+
-          `*Dados para entrega:*\n`+
-          `*Nome:* ${customerName}\n` +
-          `*Telefone:* ${customerPhone}\n` +
-          `*Quarto:* ${customerRoom}\n` +
-          `*Setor:* ${customerSector}\n` +
-          `*Forma de pagamento:* ${paymentMethod}\n` +
-          `*Serviço:* ${consumptionType}`;
+        // Mensagem
+        const message = `Olá, gostaria de fazer um pedido:\n\n` +
+            `Itens selecionados:\n${orderLines.join('\n')}\n\n` +
+            `Total do pedido: R$ ${totalStr}\n\n` +
+            `Nome: ${customerName}\n` +
+            `Telefone: ${customerPhone}\n` +
+            `Quarto: ${customerRoom}\n` +
+            `Setor: ${customerSector}\n` +
+            `Forma de pagamento: ${paymentMethod}\n` +
+            `Serviço: ${consumptionType}\n` +
+            `\n*ID do Cliente: ${userId}*`;
 
+        // Número do WhatsApp de destino (DDI + DDD + número, sem caracteres especiais)
         const whatsappNumber = '5511918360016';
-        const whatsappURL = buildWhatsAppURL(whatsappNumber, message);
+        const encoded = encodeURIComponent(message);
+        const isMobile = /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
+        const whatsappURL = isMobile
+            ? `https://wa.me/${whatsappNumber}?text=${encoded}`
+            : `https://web.whatsapp.com/send?phone=${whatsappNumber}&text=${encoded}`;
+
         window.open(whatsappURL, '_blank');
-      });
 
-      const cartButtonElem = document.getElementById('cartButton');
-      cartButtonElem.addEventListener('click', () => {
-        const cartSection = document.getElementById('cart-section');
-        cartSection.scrollIntoView({ behavior: 'smooth' });
-      });
-
-      function showModalMessage(message) {
-        // Remove qualquer modal existente para evitar sobreposição
-        const existingModal = document.querySelector('.modal-container');
-        if (existingModal) existingModal.remove();
-
-        const modal = document.createElement('div');
-        modal.className = 'modal-container fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-[2000]';
-        modal.innerHTML = `
-          <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm mx-auto text-center">
-            <p class="text-lg text-gray-800">${message}</p>
-            <button id="close-modal" class="mt-4 px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600" style="background-color: var(--orange);">Fechar</button>
-          </div>
-        `;
-        document.body.appendChild(modal);
-
-        document.getElementById('close-modal').addEventListener('click', () => {
-          modal.remove();
-        });
-      }
+        // Limpa o carrinho no banco de dados após o pedido
+        await setDoc(userCartRef, {});
+        document.getElementById('orderForm').reset();
     });
-  </script>
-</body>
-</html>
 
+    // Botão flutuante para navegar ao carrinho
+    document.getElementById('cartButton').addEventListener('click', () => {
+        document.getElementById('cart-section').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    // Funções globais para uso nos eventos inline
+    window.addToCart = addToCart;
+    window.updateCartItem = updateCartItem;
+    
+</script>
