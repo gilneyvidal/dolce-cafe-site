@@ -245,6 +245,7 @@
       display: block;
       margin-bottom: 5px;
       font-weight: bold;
+      color: #fff; /* Adiciona cor branca aos labels */
     }
     .form-group input,
     .form-group select {
@@ -641,6 +642,16 @@
       orderForm.addEventListener('submit', event => {
         event.preventDefault();
 
+        const now = new Date();
+        const hour = now.getHours();
+        const minute = now.getMinutes();
+        const isWithinOperatingHours = (hour >= 6 && hour < 23) || (hour === 23 && minute === 0);
+
+        if (!isWithinOperatingHours) {
+          showModalMessage('Desculpe, a loja está fechada. Nosso horário de atendimento é das 6:00 às 23:00.');
+          return;
+        }
+
         const orderLines = [];
         let totalOrder = 0;
         const names = Object.keys(cart);
@@ -657,7 +668,7 @@
         });
 
         if (orderLines.length === 0) {
-          console.error("Selecione pelo menos um item do cardápio.");
+          showModalMessage('Selecione pelo menos um item do cardápio.');
           return;
         }
 
@@ -693,6 +704,22 @@
         const cartSection = document.getElementById('cart-section');
         cartSection.scrollIntoView({ behavior: 'smooth' });
       });
+
+      function showModalMessage(message) {
+        const modal = document.createElement('div');
+        modal.className = 'fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-[2000]';
+        modal.innerHTML = `
+          <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm mx-auto text-center">
+            <p class="text-lg text-gray-800">${message}</p>
+            <button id="close-modal" class="mt-4 px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600">Fechar</button>
+          </div>
+        `;
+        document.body.appendChild(modal);
+
+        document.getElementById('close-modal').addEventListener('click', () => {
+          modal.remove();
+        });
+      }
     });
   </script>
 </body>
