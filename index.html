@@ -8,7 +8,7 @@
   <style>
     @font-face {
       font-family: "Dolato";
-      src: url("https://res.cloudinary.com/dolce-cafe-app/image/upload/v1724967393/Dolato_de_Stato_Font_w9r96c.ttf") format("truetype");
+      src: url("https://res.cloudinary.com/dts-11-20-2023/image/upload/v1724967393/Dolato_de_Stato_Font_w9r96c.ttf") format("truetype");
       font-weight: normal;
       font-style: normal;
     }
@@ -79,8 +79,10 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      font-family: "Dolato", "Calibri", sans-serif;
+      font-family: "Dolato", sans-serif;
       font-size: 1.4rem;
+      font-weight: bold;
+      font-style: italic;
       margin-top: 0;
       margin-bottom: 12px;
       color: #fff;
@@ -181,7 +183,9 @@
       color: var(--text-color);
     }
     .cart-section h2 {
-      font-family: "Dolato", "Calibri", sans-serif;
+      font-family: "Dolato", sans-serif;
+      font-weight: bold;
+      font-style: italic;
       margin-top: 0;
       margin-bottom: 15px;
       font-size: 1.4rem;
@@ -310,7 +314,7 @@
   <div class="container">
     <div class="menu-wrapper">
       <header>
-        <img src="https://res.cloudinary.com/dolce-cafe-app/image/upload/v1724967393/topo_r0237y.png" alt="Topo decorativo" class="topo-img" />
+        <img src="https://res.cloudinary.com/dts-11-20-2023/image/upload/v1724967393/topo.png" alt="Topo decorativo" class="topo-img" />
       </header>
       <div class="header-separator"></div>
       <div class="info-message">
@@ -353,7 +357,6 @@
             <option value="Dinheiro">Dinheiro</option>
             <option value="Cartão de Crédito">Cartão de crédito</option>
             <option value="Cartão de Débito">Cartão de débito</option>
-            <option value="Pix">Pix</option>
           </select>
         </div>
         <div class="form-group">
@@ -515,12 +518,13 @@
         block.className = 'category-block';
 
         const h3 = document.createElement('h3');
-        const iconSpan = document.createElement('span');
-        iconSpan.textContent = category.icon;
-        iconSpan.className = 'category-icon';
+        const iconImg = document.createElement('img');
+        iconImg.src = category.icon;
+        iconImg.alt = '';
+        iconImg.className = 'category-icon';
         const titleSpan = document.createElement('span');
         titleSpan.textContent = category.name;
-        h3.appendChild(iconSpan);
+        h3.appendChild(iconImg);
         h3.appendChild(titleSpan);
         block.appendChild(h3);
 
@@ -610,8 +614,8 @@
 
       async function loadMenu() {
         if (!db) return;
-        const menuRef = doc(db, `artifacts/${appId}/public/menu`);
-        const sectorsRef = doc(db, `artifacts/${appId}/public/sectors`);
+        const menuRef = doc(db, `artifacts/${appId}/public/data/menu`);
+        const sectorsRef = doc(db, `artifacts/${appId}/public/data/sectors`);
         try {
             const menuDoc = await getDoc(menuRef);
             const sectorsDoc = await getDoc(sectorsRef);
@@ -660,7 +664,7 @@
           const entry = cart[name];
           const qty = entry.quantity;
           const priceStr = entry.price;
-          const priceNum = parseFloat(priceStr.replace(',', '.'));
+          const priceNum = parseFloat(entry.price.replace(',', '.'));
           const itemTotal = priceNum * qty;
           totalOrder += itemTotal;
           const itemTotalStr = itemTotal.toFixed(2).replace('.', ',');
