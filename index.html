@@ -155,7 +155,7 @@
       cursor: pointer;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
       z-index: 1000;
-      transition: background-color 0.2s ease;
+      transition: background-color: 0.2s ease;
     }
     .cart-button:hover {
       background-color: var(--orange-dark);
@@ -249,7 +249,7 @@
       display: block;
       margin-bottom: 5px;
       font-weight: bold;
-      color: #fff; /* Adiciona cor branca aos labels */
+      color: #fff;
     }
     .form-group input,
     .form-group select {
@@ -380,20 +380,21 @@
   </div>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getFirestore, doc, getDoc, onSnapshot, collection, query, where, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    
+    const firebaseConfig = typeof __firebase_config !== 'undefined'
+      ? JSON.parse(__firebase_config)
+      : { 
+          // Configuração de fallback para desenvolvimento local (não será usada no ambiente final)
+          apiKey: "AIzaSy...",
+          authDomain: "...",
+          projectId: "...",
+          // etc.
+      };
+    // A variável 'appId' ainda é útil para outras funcionalidades do Firebase, mas não para o caminho dos dados.
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id-for-local-dev';
 
-    // A sua configuração do Firebase aqui
-    const firebaseConfig = {
-      apiKey: "AIzaSyAVYypw3seGUZcwbvUMz8aIWTMlqbmADsY",
-      authDomain: "dolce-cafe-app.firebaseapp.com",
-      projectId: "dolce-cafe-app",
-      storageBucket: "dolce-cafe-app.firebasestorage.app",
-      messagingSenderId: "996006182378",
-      appId: "1:996006182378:web:bdbcdc42424a2e4dad8693",
-    };
-
-    const appId = firebaseConfig.projectId;
 
     let db;
     let auth;
@@ -407,26 +408,37 @@
         db = getFirestore(app);
         auth = getAuth(app);
 
-        onAuthStateChanged(auth, async (user) => {
+        onAuthStateChanged(auth, (user) => {
           if (user) {
             userId = user.uid;
             console.log("Usuário autenticado:", userId);
-            await loadMenu();
-          } else {
-            console.log("Autenticando anonimamente...");
-            await signInAnonymously(auth);
+            loadDataWithRealtimeUpdates(); 
           }
         });
+        
+        (async () => {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Erro no processo de autenticação:", error);
+                document.getElementById('menu').innerHTML = `<div class="text-red-500 font-bold text-center p-4">Erro ao autenticar. Não foi possível carregar o cardápio.</div>`;
+            }
+        })();
+
 
       } catch (error) {
         console.error("Erro ao inicializar o Firebase. Verifique a configuração.", error);
-        document.getElementById('menu').innerHTML = '<div class="text-red-500 font-bold">Erro ao carregar o cardápio. Verifique sua configuração do Firebase.</div>';
+        document.getElementById('menu').innerHTML = '<div class="text-red-500 font-bold text-center p-4">Erro ao carregar o cardápio. Verifique sua configuração do Firebase.</div>';
       }
 
       function updateIndicators() {
         Object.keys(qtyIndicators).forEach(name => {
           const span = qtyIndicators[name];
-          span.textContent = cart[name] ? cart[name].quantity : '';
+          if(span) span.textContent = cart[name] ? cart[name].quantity : '';
         });
         const cartButton = document.getElementById('cartButton');
         const cartCount = document.getElementById('cartCount');
@@ -470,7 +482,7 @@
         cartSection.style.display = 'block';
         names.forEach(name => {
           const entry = cart[name];
-          const priceNum = parseFloat(entry.price.replace(',', '.'));
+          const priceNum = parseFloat(String(entry.price).replace(',', '.'));
           const itemTotal = priceNum * entry.quantity;
           total += itemTotal;
 
@@ -530,7 +542,7 @@
 
         const itemList = document.createElement('div');
         itemList.className = 'category-items';
-        category.items.forEach(item => {
+        (category.items || []).forEach(item => {
           const row = document.createElement('div');
           row.className = 'menu-row';
 
@@ -599,40 +611,54 @@
         });
         menuContainer.appendChild(leftCol);
         menuContainer.appendChild(rightCol);
+        updateIndicators(); 
       }
 
       function renderSectors(sectors) {
         const sectorSelect = document.getElementById('customerSector');
         sectorSelect.innerHTML = '';
-        sectors.forEach(sector => {
+        (sectors || []).forEach(sector => {
           const option = document.createElement('option');
           option.value = sector;
           option.textContent = sector;
           sectorSelect.appendChild(option);
         });
       }
-
-      async function loadMenu() {
-        if (!db) return;
-        const menuRef = doc(db, `artifacts/${appId}/public/data/menu`);
-        const sectorsRef = doc(db, `artifacts/${appId}/public/data/sectors`);
-        try {
-            const menuDoc = await getDoc(menuRef);
-            const sectorsDoc = await getDoc(sectorsRef);
-
-            if (menuDoc.exists() && sectorsDoc.exists()) {
-                const menuData = menuDoc.data().categories;
-                const sectorsData = sectorsDoc.data().list;
+      
+      function loadDataWithRealtimeUpdates() {
+        if (!db) {
+            console.error("Firestore DB não está disponível.");
+            return;
+        };
+        
+        // --- CORREÇÃO FINAL ---
+        // Usar o caminho exato e fixo para os dados, conforme a estrutura do seu banco de dados.
+        const menuRef = doc(db, "artifacts", "dolce-cafe-app", "public", "menu");
+        onSnapshot(menuRef, (doc) => {
+            if (doc.exists()) {
+                const menuData = doc.data().categories;
                 renderMenu(menuData);
+            } else {
+                document.getElementById('menu').innerHTML = '<div class="text-white text-center p-4">Cardápio não encontrado. Verifique a configuração no Firestore.</div>';
+            }
+        }, (error) => {
+            console.error("Erro ao carregar o cardápio em tempo real:", error);
+            document.getElementById('menu').innerHTML = `<div class="text-white text-center p-4">Erro ao carregar o cardápio: ${error.message}</div>`;
+        });
+        
+        const sectorsRef = doc(db, "artifacts", "dolce-cafe-app", "public", "sectors");
+        onSnapshot(sectorsRef, (doc) => {
+            if (doc.exists()) {
+                const sectorsData = doc.data().list;
                 renderSectors(sectorsData);
             } else {
-                document.getElementById('menu').innerHTML = '<div class="text-white">Nenhum dado de cardápio encontrado.</div>';
+                console.warn("Documento de setores não encontrado.");
             }
-        } catch (error) {
-            console.error("Erro ao carregar os dados:", error);
-            document.getElementById('menu').innerHTML = `<div class="text-white">Erro ao carregar o cardápio: ${error.message}</div>`;
-        }
+        }, (error) => {
+            console.error("Erro ao carregar os setores em tempo real:", error);
+        });
       }
+
 
       function buildWhatsAppURL(number, text) {
         const encoded = encodeURIComponent(text);
@@ -648,10 +674,8 @@
 
         const now = new Date();
         const hour = now.getHours();
-        const minute = now.getMinutes();
-        const isWithinOperatingHours = (hour >= 6 && hour < 23) || (hour === 23 && minute === 0);
-
-        if (!isWithinOperatingHours) {
+        
+        if (hour < 6 || hour >= 23) {
           showModalMessage('Desculpe, a loja está fechada. Nosso horário de atendimento é das 6:00 às 23:00.');
           return;
         }
@@ -660,21 +684,21 @@
         let totalOrder = 0;
         const names = Object.keys(cart);
 
+        if (names.length === 0) {
+          showModalMessage('O seu carrinho está vazio. Adicione pelo menos um item para fazer o pedido.');
+          return;
+        }
+
         names.forEach(name => {
           const entry = cart[name];
           const qty = entry.quantity;
           const priceStr = entry.price;
-          const priceNum = parseFloat(entry.price.replace(',', '.'));
+          const priceNum = parseFloat(String(entry.price).replace(',', '.'));
           const itemTotal = priceNum * qty;
           totalOrder += itemTotal;
           const itemTotalStr = itemTotal.toFixed(2).replace('.', ',');
           orderLines.push(`${name}: ${qty} x R$ ${priceStr} = R$ ${itemTotalStr}`);
         });
-
-        if (orderLines.length === 0) {
-          showModalMessage('Selecione pelo menos um item do cardápio.');
-          return;
-        }
 
         const customerName = document.getElementById('customerName').value.trim();
         const customerPhone = document.getElementById('customerPhone').value.trim();
@@ -687,19 +711,19 @@
 
         const message =
           `Olá, gostaria de fazer um pedido:\n\n` +
-          `Itens selecionados:\n${orderLines.join('\n')}\n\n` +
-          `Total do pedido: R$ ${totalStr}\n\n` +
-          `Nome: ${customerName}\n` +
-          `Telefone: ${customerPhone}\n` +
-          `Quarto: ${customerRoom}\n` +
-          `Setor: ${customerSector}\n` +
-          `Forma de pagamento: ${paymentMethod}\n` +
-          `Serviço: ${consumptionType}`;
+          `*Itens selecionados:*\n${orderLines.join('\n')}\n\n` +
+          `*Total do pedido: R$ ${totalStr}*\n\n` +
+          `----------------------------------\n`+
+          `*Dados para entrega:*\n`+
+          `*Nome:* ${customerName}\n` +
+          `*Telefone:* ${customerPhone}\n` +
+          `*Quarto:* ${customerRoom}\n` +
+          `*Setor:* ${customerSector}\n` +
+          `*Forma de pagamento:* ${paymentMethod}\n` +
+          `*Serviço:* ${consumptionType}`;
 
         const whatsappNumber = '5511918360016';
-
         const whatsappURL = buildWhatsAppURL(whatsappNumber, message);
-
         window.open(whatsappURL, '_blank');
       });
 
@@ -710,12 +734,16 @@
       });
 
       function showModalMessage(message) {
+        // Remove qualquer modal existente para evitar sobreposição
+        const existingModal = document.querySelector('.modal-container');
+        if (existingModal) existingModal.remove();
+
         const modal = document.createElement('div');
-        modal.className = 'fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-[2000]';
+        modal.className = 'modal-container fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-[2000]';
         modal.innerHTML = `
           <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm mx-auto text-center">
             <p class="text-lg text-gray-800">${message}</p>
-            <button id="close-modal" class="mt-4 px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600">Fechar</button>
+            <button id="close-modal" class="mt-4 px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600" style="background-color: var(--orange);">Fechar</button>
           </div>
         `;
         document.body.appendChild(modal);
@@ -728,3 +756,4 @@
   </script>
 </body>
 </html>
+
