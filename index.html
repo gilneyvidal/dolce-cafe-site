@@ -1,82 +1,490 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cardápio Dolce DC Café</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <div class="container">
-      <!-- Envoltório que concentra o cabeçalho e o cardápio, com borda e fundo fiel ao PDF -->
-      <div class="menu-wrapper">
-        <header>
-          <!-- Imagem de topo que reúne a setas, título, logo e ícones, alinhada à base do logotipo.  -->
-          <img src="images/topo.png" alt="Topo decorativo" class="topo-img" />
-        </header>
-        <!-- Linha divisória entre o cabeçalho e o início do cardápio -->
-        <div class="header-separator"></div>
+    <title>Cardápio Dolce DC Café</title>
+    <!-- Inclui o Tailwind CSS para estilos de componentes modernos e responsivos -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #392502;
+            color: #392502;
+        }
+        .dolato-font {
+            font-family: "Dolato", sans-serif;
+        }
+        /* Definição da fonte Dolato, se disponível */
+        @font-face {
+            font-family: "Dolato";
+            src: url("https://fonts.gstatic.com/s/dolato/v1/nwpP_0Nq_mSj_T_P_D.woff2") format("woff2"); /* Exemplo com uma URL genérica, pode ser substituída por uma real */
+            font-weight: normal;
+            font-style: normal;
+        }
+        /* Animação para a entrada dos elementos */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-fadeInUp {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+    </style>
+</head>
+<body class="bg-[#392502] text-[#392502] font-sans">
 
-        <!-- Seção dinâmica onde serão inseridas as categorias e itens do cardápio via JavaScript -->
-        <section id="menu" class="menu">
-          <!-- Conteúdo gerado dinamicamente -->
-        </section>
-      </div>
-
-      <!-- Seção do formulário de pedido. Contém campos para dados do cliente e forma de pagamento. -->
-      <section id="order-form" class="order-form">
-        <h2>Fazer pedido</h2>
-        <form id="orderForm">
-          <div class="form-group">
-            <label for="customerName">Nome:</label>
-            <input type="text" id="customerName" required />
-          </div>
-          <div class="form-group">
-            <label for="customerPhone">Telefone:</label>
-            <input type="tel" id="customerPhone" required />
-          </div>
-          <div class="form-group">
-            <label for="customerRoom">Quarto:</label>
-            <input type="text" id="customerRoom" required />
-          </div>
-          <div class="form-group">
-            <label for="customerSector">Setor:</label>
-            <select id="customerSector" required></select>
-          </div>
-          <div class="form-group">
-            <label for="paymentMethod">Forma de pagamento:</label>
-            <select id="paymentMethod" required>
-              <option value="Dinheiro">Dinheiro</option>
-              <option value="Cartão de Crédito">Cartão de crédito</option>
-              <option value="Cartão de Débito">Cartão de débito</option>
-              <option value="Pix">Pix</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="consumptionType">Serviço:</label>
-            <select id="consumptionType" required>
-              <option value="Comer no local">Comer no local</option>
-              <option value="Retirar no balcão">Retirar no balcão</option>
-            </select>
-          </div>
-          <button type="submit">Enviar pedido via WhatsApp</button>
-        </form>
-      </section>
-
-      <!-- Rodapé com informações de contato, horário, direitos autorais e créditos de desenvolvimento -->
-      <footer class="footer">
-        <p>Dolce Café | Ramal: 0830 | Horário: 6:00 às 23:00</p>
-        <!-- Linha de direitos autorais padrão -->
-        <p>© 2025 Dolce Café. Todos os direitos reservados.</p>
-        <!-- Créditos de desenvolvimento com link para o WhatsApp do desenvolvedor -->
-        <p>
-          Desenvolvido pela empresa Vidal Design Solutions –
-          <a href="https://wa.me/5511968649673" target="_blank">11968649673</a>
-        </p>
-      </footer>
+    <!-- Modal de mensagem -->
+    <div id="message-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <h3 id="modal-title" class="text-lg leading-6 font-medium text-gray-900"></h3>
+                <div class="mt-2 px-7 py-3">
+                    <p id="modal-message" class="text-sm text-gray-500"></p>
+                </div>
+                <div class="items-center px-4 py-3">
+                    <button id="close-modal-btn" class="px-4 py-2 bg-[#f28c0d] text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-[#d97b00] focus:outline-none focus:ring-2 focus:ring-[#f28c0d] focus:ring-opacity-50">
+                        Ok
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Script principal responsável por carregar setores e montar a mensagem de WhatsApp -->
-    <script src="script.js"></script>
-  </body>
+    <div class="container mx-auto p-5 max-w-5xl">
+        <!-- Envoltório que concentra o cabeçalho e o cardápio -->
+        <div class="menu-wrapper border-4 border-[#f28c0d] rounded-2xl p-6 md:p-10 bg-[#392502] shadow-xl mb-10">
+            <header class="text-center mb-8 relative">
+                <!-- Recriação do topo decorativo com classes Tailwind e texto -->
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex-1 flex justify-start items-center">
+                        <svg class="h-6 w-12 text-[#f28c0d] transform -scale-x-100" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M11.707 3.293a1 1 0 010 1.414L7.414 9H15a1 1 0 110 2H7.414l4.293 4.293a1 1 0 01-1.414 1.414l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 0z" clip-rule="evenodd" fill-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <h1 class="text-3xl sm:text-4xl lg:text-5xl text-white dolato-font leading-none">Dolce DC Café</h1>
+                    <div class="flex-1 flex justify-end items-center">
+                        <svg class="h-6 w-12 text-[#f28c0d]" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M11.707 3.293a1 1 0 010 1.414L7.414 9H15a1 1 0 110 2H7.414l4.293 4.293a1 1 0 01-1.414 1.414l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 0z" clip-rule="evenodd" fill-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="border-t-2 border-[#f28c0d] mb-4"></div>
+                <p id="user-id-display" class="text-xs text-gray-400">Carregando ID de usuário...</p>
+            </header>
+
+            <!-- Mensagem informativa para usuários iniciantes -->
+            <div class="bg-gray-100 border-l-4 border-[#f28c0d] p-3 md:p-4 mb-5 text-sm text-[#392502] rounded-md">
+                Clique no botão <strong>“+”</strong> para adicionar um produto à sua sacola. Os itens adicionados ficam no <strong>carrinho</strong> ao final da página, junto ao formulário de pedido. Você pode ajustar as quantidades e finalizar seu pedido lá mesmo.
+            </div>
+
+            <!-- Seção dinâmica onde serão inseridas as categorias e itens do cardápio via JavaScript -->
+            <div id="loading-spinner" class="flex flex-col items-center justify-center py-10">
+                <svg class="animate-spin -ml-1 mr-3 h-10 w-10 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span class="mt-4 text-white text-lg">Carregando cardápio...</span>
+            </div>
+            
+            <section id="menu" class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-12">
+                <!-- Conteúdo gerado dinamicamente pelo JavaScript -->
+            </section>
+        </div>
+
+        <!-- Seção do carrinho onde os itens selecionados serão listados -->
+        <section id="cart-section" class="cart-section hidden mt-8 md:mt-10 bg-gray-100 border-2 border-[#f28c0d] rounded-2xl p-6 shadow-xl max-w-xl mx-auto text-[#392502]">
+            <h2 class="dolato-font text-2xl mb-4 text-center">Carrinho</h2>
+            <div id="cartItems" class="flex flex-col gap-4"></div>
+            <p class="cart-total text-right font-bold text-xl mt-4">Total: R$ <span id="cartTotal">0,00</span></p>
+        </section>
+
+        <!-- Botão flutuante para acessar o carrinho -->
+        <button id="cartButton" class="fixed bottom-5 right-5 bg-[#f28c0d] text-white font-bold py-3 px-6 rounded-full shadow-lg hover:bg-[#d97b00] transition-colors duration-300 z-50 hidden">
+            Ver carrinho (<span id="cartCount">0</span>)
+        </button>
+
+        <!-- Seção do formulário de pedido -->
+        <section id="order-form" class="order-form mt-8 md:mt-10 bg-gray-100 border-2 border-[#f28c0d] rounded-2xl p-6 shadow-xl max-w-xl mx-auto text-[#392502]">
+            <h2 class="dolato-font text-2xl mb-4 text-center">Fazer pedido</h2>
+            <form id="orderForm" class="space-y-4">
+                <div>
+                    <label for="customerName" class="block font-semibold">Nome:</label>
+                    <input type="text" id="customerName" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f28c0d]" required />
+                </div>
+                <div>
+                    <label for="customerPhone" class="block font-semibold">Telefone:</label>
+                    <input type="tel" id="customerPhone" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f28c0d]" required />
+                </div>
+                <div>
+                    <label for="customerRoom" class="block font-semibold">Quarto:</label>
+                    <input type="text" id="customerRoom" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f28c0d]" required />
+                </div>
+                <div>
+                    <label for="customerSector" class="block font-semibold">Setor:</label>
+                    <select id="customerSector" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f28c0d]" required></select>
+                </div>
+                <div>
+                    <label for="paymentMethod" class="block font-semibold">Forma de pagamento:</label>
+                    <select id="paymentMethod" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f28c0d]" required>
+                        <option value="Dinheiro">Dinheiro</option>
+                        <option value="Cartão de Crédito">Cartão de crédito</option>
+                        <option value="Cartão de Débito">Cartão de débito</option>
+                        <option value="Pix">Pix</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="consumptionType" class="block font-semibold">Serviço:</label>
+                    <select id="consumptionType" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f28c0d]" required>
+                        <option value="Comer no local">Comer no local</option>
+                        <option value="Retirar no balcão">Retirar no balcão</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full bg-[#f28c0d] text-white font-bold py-3 px-4 rounded-lg shadow-md hover:bg-[#d97b00] transition-colors duration-300">
+                    Enviar pedido via WhatsApp
+                </button>
+            </form>
+        </section>
+
+        <!-- Rodapé -->
+        <footer class="footer text-center text-gray-300 text-sm mt-10">
+            <p>Dolce Café | Ramal: 0830 | Horário: 6:00 às 23:00</p>
+            <p>© 2025 Dolce Café. Todos os direitos reservados.</p>
+            <p>
+                Desenvolvido pela empresa Vidal Design Solutions –
+                <a href="https://wa.me/5511968649673" target="_blank" class="text-[#f28c0d] hover:underline">11968649673</a>
+            </p>
+        </footer>
+    </div>
+
+    <!-- Scripts do Firebase e do aplicativo -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global variables provided by the Canvas environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // Firestore paths for data
+        const menuPath = `/artifacts/${appId}/public/data/menu`;
+        const sectorsPath = `/artifacts/${appId}/public/data/sectors`;
+        const userCartPath = (userId) => `/artifacts/${appId}/users/${userId}/cart/items`;
+        const userProfilePath = (userId) => `/artifacts/${appId}/users/${userId}/profile`;
+
+        // Firebase Initialization
+        let app, db, auth, userId;
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const menuContainer = document.getElementById('menu');
+
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            console.log("Firebase inicializado com sucesso.");
+
+            // Autenticação do usuário e configuração do listener
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    userId = user.uid;
+                    document.getElementById('user-id-display').textContent = `ID de usuário: ${userId}`;
+                    console.log(`Usuário autenticado com ID: ${userId}`);
+
+                    // Listener para o carrinho do usuário
+                    onSnapshot(doc(db, userCartPath(userId)), (docSnapshot) => {
+                        const cartData = docSnapshot.data() || {};
+                        updateCart(cartData);
+                    }, (error) => {
+                        console.error("Erro ao obter dados do carrinho:", error);
+                    });
+                } else {
+                    try {
+                        if (initialAuthToken) {
+                            const userCredential = await signInWithCustomToken(auth, initialAuthToken);
+                            userId = userCredential.user.uid;
+                        } else {
+                            const userCredential = await signInAnonymously(auth);
+                            userId = userCredential.user.uid;
+                        }
+                    } catch (error) {
+                        console.error("Erro na autenticação:", error);
+                        userId = crypto.randomUUID(); // Fallback para ID aleatório
+                        document.getElementById('user-id-display').textContent = `ID de usuário (anônimo): ${userId}`;
+                        console.warn(`Autenticação falhou, usando ID de usuário aleatório: ${userId}`);
+                    }
+                }
+            });
+
+            // Carrega dados do Firestore
+            async function loadData() {
+                try {
+                    const menuDoc = await getDoc(doc(db, menuPath));
+                    const sectorsDoc = await getDoc(doc(db, sectorsPath));
+                    
+                    const menuData = menuDoc.exists() ? menuDoc.data().categories : [];
+                    const sectorsData = sectorsDoc.exists() ? sectorsDoc.data().list : [];
+                    
+                    renderMenu(menuData);
+                    populateSectors(sectorsData);
+                    loadingSpinner.classList.add('hidden');
+                } catch (e) {
+                    console.error("Erro ao carregar dados do Firestore:", e);
+                    loadingSpinner.innerHTML = `<p class="text-white text-lg">Erro ao carregar o cardápio. Verifique sua conexão ou tente novamente mais tarde.</p>`;
+                }
+            }
+
+            loadData();
+        } catch (e) {
+            console.error("Erro ao inicializar o Firebase:", e);
+            loadingSpinner.innerHTML = `<p class="text-white text-lg">Erro ao inicializar o Firebase. Verifique a configuração.</p>`;
+        }
+
+        /** Exibe uma mensagem em um modal customizado */
+        function showMessage(title, message) {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-message').textContent = message;
+            document.getElementById('message-modal').classList.remove('hidden');
+        }
+
+        document.getElementById('close-modal-btn').addEventListener('click', () => {
+            document.getElementById('message-modal').classList.add('hidden');
+        });
+
+        /** Mapeamento de indicadores de quantidade */
+        const qtyIndicators = {};
+
+        /** Atualiza os indicadores de quantidade e o botão flutuante do carrinho. */
+        function updateIndicators(cart) {
+            Object.keys(qtyIndicators).forEach(name => {
+                const span = qtyIndicators[name];
+                span.textContent = cart[name] ? cart[name].quantity : '';
+            });
+            const cartButton = document.getElementById('cartButton');
+            const cartCount = document.getElementById('cartCount');
+            const totalItems = Object.values(cart).reduce((sum, e) => sum + e.quantity, 0);
+            if (totalItems > 0) {
+                cartButton.classList.remove('hidden');
+                cartCount.textContent = totalItems;
+            } else {
+                cartButton.classList.add('hidden');
+                cartCount.textContent = '0';
+            }
+        }
+
+        /** Adiciona item ao carrinho no Firestore */
+        async function addToCart(itemName, itemPrice) {
+            const userCartRef = doc(db, userCartPath(userId));
+            try {
+                const cartDoc = await getDoc(userCartRef);
+                const currentCart = cartDoc.exists() ? cartDoc.data() : {};
+                const newCart = { ...currentCart };
+
+                if (!newCart[itemName]) {
+                    newCart[itemName] = { quantity: 1, price: itemPrice };
+                } else {
+                    newCart[itemName].quantity++;
+                }
+
+                await setDoc(userCartRef, newCart);
+            } catch (e) {
+                console.error("Erro ao adicionar item ao carrinho:", e);
+            }
+        }
+
+        /** Atualiza quantidade de um item no carrinho no Firestore */
+        async function updateCartItem(itemName, delta) {
+            const userCartRef = doc(db, userCartPath(userId));
+            try {
+                const cartDoc = await getDoc(userCartRef);
+                const currentCart = cartDoc.exists() ? cartDoc.data() : {};
+                const newCart = { ...currentCart };
+
+                if (!newCart[itemName]) return;
+
+                newCart[itemName].quantity += delta;
+                if (newCart[itemName].quantity <= 0) {
+                    delete newCart[itemName];
+                }
+
+                await setDoc(userCartRef, newCart);
+            } catch (e) {
+                console.error("Erro ao atualizar item do carrinho:", e);
+            }
+        }
+
+        /** Renderiza o conteúdo do carrinho com dados do Firestore */
+        function updateCart(cart) {
+            const cartSection = document.getElementById('cart-section');
+            const cartItemsContainer = document.getElementById('cartItems');
+            const cartTotalSpan = document.getElementById('cartTotal');
+            cartItemsContainer.innerHTML = '';
+            let total = 0;
+            const names = Object.keys(cart);
+
+            if (names.length === 0) {
+                cartSection.classList.add('hidden');
+                cartTotalSpan.textContent = '0,00';
+                updateIndicators(cart);
+                return;
+            }
+
+            cartSection.classList.remove('hidden');
+            names.forEach(name => {
+                const entry = cart[name];
+                const priceNum = parseFloat(entry.price.replace(',', '.'));
+                const itemTotal = priceNum * entry.quantity;
+                total += itemTotal;
+
+                const row = document.createElement('div');
+                row.className = 'cart-item flex items-center justify-between gap-2 border-b border-gray-300 pb-2';
+
+                row.innerHTML = `
+                    <span class="font-semibold">${name}</span>
+                    <span class="text-gray-600">R$ ${entry.price}</span>
+                    <div class="flex items-center gap-2">
+                        <button class="bg-[#f28c0d] text-white rounded-full w-6 h-6 flex items-center justify-center font-bold text-lg leading-none" onclick="updateCartItem('${name}', -1)">−</button>
+                        <span>${entry.quantity}</span>
+                        <button class="bg-[#f28c0d] text-white rounded-full w-6 h-6 flex items-center justify-center font-bold text-lg leading-none" onclick="updateCartItem('${name}', 1)">+</button>
+                    </div>
+                `;
+                cartItemsContainer.appendChild(row);
+            });
+            const totalStr = total.toFixed(2).replace('.', ',');
+            cartTotalSpan.textContent = totalStr;
+            updateIndicators(cart);
+        }
+
+        /** Gera dinamicamente as seções do cardápio */
+        function renderMenu(menuData) {
+            menuContainer.innerHTML = '';
+            Object.keys(qtyIndicators).forEach(key => delete qtyIndicators[key]);
+
+            if (!menuData || menuData.length === 0) {
+                menuContainer.innerHTML = `<p class="text-white text-center text-lg col-span-2">Nenhuma categoria encontrada. Por favor, adicione categorias no seu banco de dados do Firestore.</p>`;
+                return;
+            }
+
+            menuData.forEach((category, index) => {
+                const block = document.createElement('div');
+                block.className = `category-block animate-fadeInUp p-4 border-2 border-[#f28c0d] rounded-xl shadow-lg bg-gray-100/90`;
+                block.style.animationDelay = `${index * 0.1}s`;
+
+                const icon = category.icon || '☕'; // Fallback para emoji
+                block.innerHTML = `
+                    <h3 class="flex items-center gap-2 text-xl font-bold mb-4 border-b border-[#f28c0d] pb-2">
+                        <span class="text-2xl">${icon}</span>
+                        <span>${category.name}</span>
+                    </h3>
+                    <div class="category-items space-y-3">
+                        ${category.items.map(item => `
+                            <div class="menu-row flex justify-between items-center gap-4">
+                                <div>
+                                    <span class="block font-medium">${item.name}</span>
+                                    ${item.description ? `<small class="block text-gray-500 text-sm mt-1">${item.description}</small>` : ''}
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="font-semibold text-[#f28c0d]">R$ ${item.price}</span>
+                                    <button class="add-btn bg-[#f28c0d] text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-xl leading-none" onclick="addToCart('${item.name}', '${item.price}')">+</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                menuContainer.appendChild(block);
+            });
+        }
+
+        /** Preenche o select de setores */
+        function populateSectors(sectorsData) {
+            const sectorSelect = document.getElementById('customerSector');
+            sectorSelect.innerHTML = sectorsData.map(sector => `<option value="${sector}">${sector}</option>`).join('');
+        }
+        
+        // Manipulador de envio do formulário (gera mensagem e abre WhatsApp)
+        const orderForm = document.getElementById('orderForm');
+        orderForm.addEventListener('submit', async event => {
+            event.preventDefault();
+
+            const userCartRef = doc(db, userCartPath(userId));
+            const cartDoc = await getDoc(userCartRef);
+            const cart = cartDoc.exists() ? cartDoc.data() : {};
+            const names = Object.keys(cart);
+
+            if (names.length === 0) {
+                showMessage("Aviso", "Selecione pelo menos um item do cardápio para fazer o pedido.");
+                return;
+            }
+
+            // Linhas do pedido
+            const orderLines = [];
+            let totalOrder = 0;
+            names.forEach(name => {
+                const entry = cart[name];
+                const qty = entry.quantity;
+                const priceStr = entry.price;
+                const priceNum = parseFloat(priceStr.replace(',', '.'));
+                const itemTotal = priceNum * qty;
+                totalOrder += itemTotal;
+                const itemTotalStr = itemTotal.toFixed(2).replace('.', ',');
+                orderLines.push(`${name}: ${qty} x R$ ${priceStr} = R$ ${itemTotalStr}`);
+            });
+
+            // Dados do cliente
+            const customerName = document.getElementById('customerName').value.trim();
+            const customerPhone = document.getElementById('customerPhone').value.trim();
+            const customerRoom = document.getElementById('customerRoom').value.trim();
+            const customerSector = document.getElementById('customerSector').value;
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            const consumptionType = document.getElementById('consumptionType').value;
+
+            // Total do pedido
+            const totalStr = totalOrder.toFixed(2).replace('.', ',');
+
+            // Mensagem
+            const message = `Olá, gostaria de fazer um pedido:\n\n` +
+                `Itens selecionados:\n${orderLines.join('\n')}\n\n` +
+                `Total do pedido: R$ ${totalStr}\n\n` +
+                `Nome: ${customerName}\n` +
+                `Telefone: ${customerPhone}\n` +
+                `Quarto: ${customerRoom}\n` +
+                `Setor: ${customerSector}\n` +
+                `Forma de pagamento: ${paymentMethod}\n` +
+                `Serviço: ${consumptionType}\n` +
+                `\n*ID do Cliente: ${userId}*`;
+
+            // Número do WhatsApp de destino (DDI + DDD + número, sem caracteres especiais)
+            const whatsappNumber = '5511918360016';
+            const encoded = encodeURIComponent(message);
+            const isMobile = /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
+            const whatsappURL = isMobile
+                ? `https://wa.me/${whatsappNumber}?text=${encoded}`
+                : `https://web.whatsapp.com/send?phone=${whatsappNumber}&text=${encoded}`;
+
+            window.open(whatsappURL, '_blank');
+
+            // Limpa o carrinho no banco de dados após o pedido
+            await setDoc(userCartRef, {});
+            document.getElementById('orderForm').reset();
+        });
+
+        // Botão flutuante para navegar ao carrinho
+        document.getElementById('cartButton').addEventListener('click', () => {
+            document.getElementById('cart-section').scrollIntoView({ behavior: 'smooth' });
+        });
+
+        // Funções globais para uso nos eventos inline
+        window.addToCart = addToCart;
+        window.updateCartItem = updateCartItem;
+        
+    </script>
+</body>
 </html>
